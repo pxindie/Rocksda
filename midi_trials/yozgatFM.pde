@@ -1,5 +1,5 @@
 void setup() {
-  int numkey;
+  int numkey = 4;
   Player player = new Player();
   player.setUpPlayer(numKey);
     
@@ -11,13 +11,14 @@ void draw() {
 
  
 void keyPressed() {
-  setUpPlayer();
-  
+  for (int i = 0; i<numkey; i++) {
+    if (key == 49+i) {setUpPlayer(i);}
+  }
 }
 
 
 
-void setUpPlayer(int numKey){
+void setUpPlayer(int u){
   try{
       // Kasetçalar tanımlanır
       Sequencer kasetcalar = MidiSystem.getSequencer();
@@ -32,9 +33,9 @@ void setUpPlayer(int numKey){
       Track calgi = kaset.createTrack();
       
       // Enstrümanlara görevler veriliyor
-      for(int i = 5; i<(4*numkey);i +=4) {
-        calgi.add(makeEvent(144,1,i,100,i));
-        calgi.add(makeEvent(128,1,i,100,i+2));
+      for(int i = 5; i<4;i +=4) {
+        calgi.add(makeEvent(144,1,i+u,100,i));
+        calgi.add(makeEvent(128,1,i+u,100,i+2));
       }
 
       // Kaset takılıyor
@@ -55,6 +56,7 @@ void setUpPlayer(int numKey){
     
     } catch(Exception ex) {}
   }
+
 
 // Enstrümanlara verilen görev burda ayarlanıyor
 MidiEvent makeEvent(int command, int channel,int note, int velocity,int tick){
