@@ -32,7 +32,7 @@ class timer {
   
   float calc(int x){return float(nf(x*0.01,0,2).replace(",","."));}
   
-  void showtime(float x){
+  void showtime(){
     int minnak;
     int seccak;
     

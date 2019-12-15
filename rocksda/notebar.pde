@@ -1,11 +1,18 @@
 class notebar {
+  
+  int channel;
+  int note;
+  int velocity;
+  
+  
   int y;
   int type;
   float x;
   int sutun;
   color renk;
   PVector location;
-  PVector velocity;
+  PVector hizvec;
+  
   int hiz;
   float ctime;
   int id;
@@ -14,7 +21,6 @@ class notebar {
   boolean kontak=false; //sahneye çıkınca durmaması için (giriş vakti tek, diğer vakitlerde de hareket edebilmesi için)
   
   notebar[] others;
-  
   
   notebar(int sutun_,float x_ ,int tip, int hiz_, float sira_,notebar[] oin,int idin,color renk_,int y_) {
     sutun = sutun_;
@@ -27,8 +33,8 @@ class notebar {
     renk = renk_;
     y = y_;
     
-    location = new PVector(x, y);
-    velocity = new PVector(0, hiz);
+    location = new PVector(x_, y_);
+    hizvec = new PVector(0, hiz);
   }
 
   // Alpha
@@ -76,7 +82,6 @@ class notebar {
   
 
   void update() {
-
-    location.add(velocity);
+    location.add(hizvec);
   }
   }

@@ -1,19 +1,24 @@
 /*
----Guitarsda---
-Paxel Pager
-30.11.2019
+---Rocksda(v0.6)---
+Made by Paxel Pager
 */
 
+int stage = 0;
+  
+import processing.sound.*;
+import java.util.Date;
+import java.io.File;
 import themidibus.*;
 import java.io.File;
 import java.util.Collection;
 import javax.sound.midi.*;
 
-boolean testmode = true;
+boolean testmode = false;
+
+float xman;
 
 
 // genel elemanları
-boolean a, b, c, d, sp, tetik;
 int score = 0;
 int scoreC;
 int hiz = 7;
@@ -21,6 +26,8 @@ int turn=0;
 float time;
 
 // Tasarım
+screen menu,ingame,select;
+String window = "menu";
 
 color bg = color(10);
 int sutunWidth = 150;
@@ -29,25 +36,20 @@ int circleDia = 100;
 int passin = 250;
 int passout;
 
-// İmece usulu
-int imgNum = 1;
-PImage[] images = new PImage[imgNum];
-
-
 //   Müzik Hakkında
-int numNote = 30;
-float songtime= 30;
-int numSong=1;
-boolean cooldown = false;
-int playingMusic = 0;
+
+music msc;
 
 // Kontrol Erkanı
 int numKey = 4; 
-boolean[] keylist = new boolean [numKey];
+public boolean[] keylist = new boolean [numKey];
 boolean[] accesskey = new boolean[numKey];
 boolean[] handylist = new boolean[numKey];
 float[] actualimit = new float[numKey];
 boolean[] emptyslot = new boolean[numKey];
+
+
+
 
 color[] teamRenk = new color [11];
 {
@@ -64,10 +66,9 @@ color[] teamRenk = new color [11];
   teamRenk[10] = color(20, 200, 222);
 }
 ///// objeler
-timer[] clocks = new timer[numSong];
-music[] song = new music[1];
-notebar[] notes = new notebar[numNote];
-player player;
+timer clock;
+SoundFile sf;
+
 //////
 float[] mymusic =  new float[10];
 
@@ -81,44 +82,59 @@ float horPos(int x, int weit) { //yatay alanı hesaplıyor
 float fark;
 
 
-
+File[] Songs;
 
 
 
 
 /***************************************************************************************************************************************************/
 void setup() {
-  for(int i=0;i<imgNum;i++){
-    String u = i + ".jpg";
-    images[i] = loadImage(u);
-  }
+  println("System Online");
+  File f = new File(dataPath(""));
+  Songs = f.listFiles();
+  msc = new music();
+  
   accesskey[0] = true;
   //noCursor();
   frameRate(60);
   fullScreen();
   colorMode(HSB);
   passout = height - 100;
-  for (int i = 0; i<clocks.length; i++) {
-    clocks[i] = new timer(songtime);
-  }
-
-  for (int i = 0; i<notes.length; i++) {
-    int j = int(random(numKey));
-    notes[i] = new notebar(j, horPos(j, sutunWidth)+(sutunWidth/2), 1, hiz, i/*int(random(songtime))*/, notes, i, teamRenk[j], passin);
-  }
+  
+  
+  menu = new screen("menu");
+  ingame = new screen("ingame");
+  select = new screen("select");
+  
+  
+  xman = width/2;
 }
 
 
 /***************************************************************************************************************************************************/
+void soundload(String name){
+  sf = new SoundFile(this,name);
+}
 
 
 void draw() {
-  //makeup();
-  //time = clocks[playingMusic].time();
-  //for (notebar note : notes) {
-  //  note.motor(time);
-  //}
-  //check();
+  switch(window){
+    case "menu":
+      menu.display();
+      break;
+    case "select":
+      select.display();
+      break;
+   
+    case "ingame":
+      ingame.display();
+      time = clock.time();
+      msc.run();
+      check();
+      break;
+ 
+  }
+
 }
 
 /***************************************************************************************************************************************************/
@@ -132,7 +148,7 @@ void check() {
 
 //   Tanı koyma
   for (int i=0; i<2; i++) { // önce actualimit belirleniyor  sonra da actualimite göre filitreleme yapılıyor
-    for (notebar note : notes) {
+    for (notebar note : msc.notes) {
       if(note.turn){
         emptyslot[note.sutun]= true;
       }
@@ -155,7 +171,7 @@ void check() {
   }
   
 // Öte Nazi
-  for (notebar note : notes) {//bir notayı alıyor
+  for (notebar note : msc.notes) {//bir notayı alıyor
     int j = note.sutun; // notanın sutununu öğreniyor
     
     if (note.turn) {   // nota sahnede mi
@@ -170,61 +186,26 @@ void check() {
         }
       }
     }
-  
+ }
 
-}
-
-
-
-void makeup() {
-  background(bg);
-  for (int i = 0; i<numKey; i++) {
-    float RectPos = horPos(i, sutunWidth);
-    if (keylist[i]) {
-      fill(teamRenk[i]);
-    } else {
-      fill(#D3D3D3);
-    }
-    strokeWeight(7.0);
-    stroke(bg);
-    rect(RectPos, passin, sutunWidth, sutunHeight);
-    fill(#D3D3D3);  
-    circle(RectPos+(sutunWidth/2), passout-100, circleDia);
+public void gezgin(int max){ //menü de gezmek için tuşları ayarlıyor
+  for(int i=0;i<3;i++){
+    if(!keylist[i]){ accesskey[i] = true;}
+    if(accesskey[i]){     handylist[i]=keylist[i];    }
   }
-
-  strokeWeight(1.0);
-  fill(180);
-  PFont fontScore;
-  fontScore = createFont("BookmanOldStyle-Bold.vlw", 50);
-  textFont(fontScore);
-  text("Skor : " + score, width -500, 100);
-  textSize(40);
-  String m;
-  if(scoreC<0){fill(#DE1013);m="";}else{fill(#08C909);m="+";}
-  text(m+scoreC, width -500, 150);
-
-  clocks[playingMusic].showtime(width);
-
-  //*************************************************************
-  if(testmode){
-  for (int i =0; i<numKey; i++) {
-    
-    textSize(50);
-    text("Key" + i +" "+ keylist[i], 100, i*50+200);
-    text("Handy" + i +" "+ handylist[i], 500, i*50+200);
-    text("Acces" + i +" "+ accesskey[i], 900, i*50+200);
-    
-    text(fark,100,800);
+  if(handylist[0]&& stage!=0){
+    accesskey[0] = false;
+    handylist[0] = false;
+    stage--;
   }
-  
-  for (notebar note : notes) {
-    if(note.kontak){
-    if (note.turn) { fill(#21CB00); } else { fill(#CB0018); }
-      textSize(50);  
-      text("Turn : "  + note.turn, note.x+100, note.location.y);
-  }}
-  //*************************************************************
-}
+  if(handylist[1]&& stage!=max){
+    accesskey[1] = false;
+    handylist[1] = false;
+    stage++;
+  }
+  if(handylist[2]){
+    accesskey[2] = false;
+  }
 }
 
 void keyPressed() {
@@ -253,9 +234,4 @@ void skorhesap(float x) {
     score +=20;
     scoreC =20;
   }
-}
-
-void menu(){
-  
-
 }
