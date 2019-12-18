@@ -47,6 +47,9 @@ class screen{
 
 
   void menu(){
+    if(testmode){
+      text("--T Mode Active--",100,100);
+    }
     mbut = new button(30,300,60,20);
     gezgin(1);
     background(bg);
@@ -103,6 +106,8 @@ class screen{
   
     //*************************************************************
     if(testmode){
+      textSize(10);
+      text(clock.time(),100,900);
     for (int i =0; i<numKey; i++) {
       
       textSize(50);

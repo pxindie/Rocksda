@@ -1,5 +1,5 @@
 /*
----Rocksda(v0.6)---
+---Rocksda(v0.7)---
 Made by Paxel Pager
 */
 
@@ -19,8 +19,8 @@ float xman;
 
 
 // genel elemanları
-int score = 0;
-int scoreC;
+float score = 0;
+float scoreC;
 int hiz = 7;
 int turn=0;
 float time;
@@ -176,14 +176,14 @@ void check() {
     
     if (note.turn) {   // nota sahnede mi
 
-      if (note.location.y>passout) {score-=15;scoreC=-15;note.kill();}// kaçanı vuruyoz
+      //if (note.location.y>passout) {score-=15;scoreC=-15;note.kill();}// kaçanı vuruyoz
 
-        if (handylist[j]) {
-          skorhesap(note.location.y);
-          accesskey[j] = false;
-          handylist[j] = false;
-          note.kill();
-        }
+        //if (handylist[j]) {
+        //  skorhesap(note.location.y);
+        //  accesskey[j] = false;
+        //  handylist[j] = false;
+        //  note.kill();
+        //}
       }
     }
  }
@@ -212,26 +212,12 @@ void keyPressed() {
   for (int i = 0; i<numKey; i++) {
     if (key == 49+i) {keylist[i] = true;}
   }
+  if(key == 120){testmode=true;}
+  if(key == 121){testmode=false;}
 }
 
 void keyReleased() {
   for (int i = 0; i<numKey; i++) {
     if (key == 49+i) {keylist[i] = false;}
-  }
-}
-
-
-void skorhesap(float x) {
-  fark = abs(x - (passout-100));
-
-  if (fark>150) {
-    score-=20;
-    scoreC= -20;
-  } else if (fark>15) {
-    score +=10;
-    scoreC = 10;
-  } else {
-    score +=20;
-    scoreC =20;
   }
 }

@@ -18,14 +18,13 @@ class timer {
   
   float time() {
     work();
- 
     return nowtime;}
 
   
   void work() {
     if(nowtime != songtime){
-      if(!workin){bctime=(minute()*60)+second();workin = true;}
-        systime= minute()*60+second();
+      if(!workin){bctime=(minute()*60)+second()+float(nf(millis()*0.0001,0,1).replace(",","."));workin = true;}
+        systime= minute()*60+second() + float(nf(millis()*0.0001,0,1).replace(",","."));
         nowtime = systime - bctime;
       }
     }
