@@ -6,6 +6,8 @@ class screen{
   int songid;
   boolean stp = true;
   
+  
+  
   int mbutn = 2; // Menü deki düğme sayısı
   button mbut;
   button[] sbut = new button[Songs.length];
@@ -46,12 +48,14 @@ class screen{
 
 
   void menu(){
+    sont= true;
+    background(bg);
     if(testmode){
       text("--T Mode Active--",100,100);
     }
     mbut = new button(30,300,60,20);
     gezgin(1);
-    background(bg);
+    
     textAlign(CENTER);
     textSize(100);
     fill(250);
@@ -73,7 +77,10 @@ class screen{
 
 
 
-  void ingame() {  rectMode(CORNER);
+  void ingame() {  
+    rectMode(CORNER);
+      if(sont&&time>SongStartTime){sf[0].play(); sont = false;  println("lilipady");}
+    
     background(bg);
     for (int i = 0; i<numKey; i++) {
       float RectPos = horPos(i, sutunWidth);
@@ -139,7 +146,8 @@ class screen{
         
         if(sbut[i].buton(neym,(i+1)*150,stage==i,handylist[2])){
           handylist[2] = false;
-        msc.adjust(i);        sf[i].play();
+          
+        msc.adjust(i);    ;
           window = "ingame";
         }
 

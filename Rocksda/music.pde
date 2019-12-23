@@ -163,7 +163,6 @@ int notenumber(){
     for(int z=0;z<notes.length;z++){
      float sub = notes[z].ctime - sures[notes[z].sutun];
      if(sub<500){notes[z].dead=true;}else{sures[notes[z].sutun]=notes[z].ctime;}
-     println(sures);
     }
   
   }

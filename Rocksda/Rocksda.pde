@@ -1,10 +1,11 @@
-/*
----Rocksda(v0.8)---
+ /*
+---Rocksda(v0.83)---
 Made by Paxel Pager
 */
 
 int stage = 0;
-  
+ 
+import processing.serial.*;
 import processing.sound.*;
 import java.util.Date;
 import java.io.File;
@@ -25,6 +26,7 @@ int hiz = 6;
 int turn=0;
 float time;
 
+
 // Tasarım
 
 String window = "menu";
@@ -37,18 +39,23 @@ int passin = 250;
 int passout;
 
 //   Müzik Hakkında
-
+boolean sont;
+float SongStartTime = 4200;
 music msc;
 
 // Kontrol Erkanı
 int numKey = 4; 
-public boolean[] keylist = new boolean [numKey];
-boolean[] accesskey = new boolean[numKey];
-boolean[] handylist = new boolean[numKey];
+int exKey = 3;
+int totalKey= numKey + exKey;
+
+public boolean[] keylist = new boolean [totalKey];
+boolean[] accesskey = new boolean[totalKey];
+boolean[] handylist = new boolean[totalKey];
 float[] actualimit = new float[numKey];
 boolean[] emptyslot = new boolean[numKey];
 
-
+//  Serial Elemanları
+Serial port;
 
 
 color[] teamRenk = new color [11];
@@ -91,6 +98,9 @@ File[] xSongs;
 /***************************************************************************************************************************************************/
 
 void setup() {
+  port = new Serial(this,Serial.list()[0], 9600);
+  port.bufferUntil('n');
+  printArray(Serial.list());
   println("System Online");
   f = new File(dataPath(""));
   Songs = f.listFiles();
@@ -223,10 +233,23 @@ public void gezgin(int max){ //menü de gezmek için tuşları ayarlıyor
   }
 }
 
+void serialEvent(Serial p){
+  String data = p.readStringUntil('n');
+  println(data);
+  for (int i = 0; i<totalKey; i++) {
+    print(" waiting : "+i);
+    if(matchAll(data,str(i))!=null) {keylist[i] = true;}
+    else{keylist[i]=false;}
+  }
+}
+
 void keyPressed() {
   for (int i = 0; i<numKey; i++) {
     if (key == 49+i) {keylist[i] = true;}
   }
+  
+  
+  
   if(key==27){
    key = 0;
    window="menu";
