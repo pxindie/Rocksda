@@ -7,10 +7,12 @@ class notebar {
   float selfskor=0;
   
   
-  int y;
+  float y;
   float x;
+  float dia =100;
+  boolean des1 =false;
+  boolean des2 = false;
   int sutun;
-  color renk;
   PVector location;
   PVector hizvec;
   
@@ -20,6 +22,9 @@ class notebar {
   float ctime;
   int id;
   boolean turn = false; 
+  
+  
+  boolean detruc =false;
   
   // Raylılar için değişken alanı
   float raY;
@@ -33,21 +38,21 @@ class notebar {
   
   notebar(int idin ,int sutun_, int hiz_, float sira_, float peri/*duraqtion*/) {
     sutun = sutun_;
-    if(sutun!=-1){
-      x = horPos(sutun, sutunWidth)+(sutunWidth/2);
-      renk = teamRenk[sutun];
-    }else{dead=true;}
+
+
+    x = horPos(sutun, sutunWidth)+(sutunWidth/2);
+    
     hiz = hiz_;
     ctime = sira_;
     id = idin;
     y = passin;
-    period = peri;
+    period = peri-300;
     
     location = new PVector(x, y);
     hizvec = new PVector(0, hiz);
     
     raT = ctime + peri;
-    rayli = peri>perlimit?  true:false  ;
+    rayli = peri>perlimit?  true:false;
   }
 
 
@@ -55,27 +60,28 @@ class notebar {
       if(!dead){
         if(clock.time() >= ctime) {kontak = true;}
         if(kontak){
-          //println(id +" : "+ctime);
           update();
           Display();
         }
+        if(detruc){destruction();}
       }
+
   }
  
   void Display() {
     if(rayli){
-      stroke(0);
-      strokeWeight(40);
+      line(0,raY,1000,raY);
+      stroke(reng(sutun,-30,220));
+      strokeWeight(30);
       line(x, location.y, x, raY);
-      stroke(renk);
-      strokeWeight(20);
+      stroke(reng(sutun,0,200));
+      strokeWeight(15);
       line(x, location.y, x, raY+10);
     }
-      fill(renk);
-      stroke(0);
-      strokeWeight(7);
-      circle(location.x, location.y, 100);
-      strokeWeight(1);
+      fill(reng(sutun,-10,220));
+      stroke(reng(sutun,-60,170));
+      strokeWeight(10);
+      circle(location.x, location.y, dia);
   }
  
  
@@ -97,11 +103,11 @@ class notebar {
       if (handylist[sutun]) {
         if(!rayli){
           skorhesap();
-          kill();
+          detruc=true;
         }else{
           skorhesap();
-          if(raY>=location.y){
-            kill();
+          if(raY>=location.y-90){
+            detruc=true;
           }
         }
     }
@@ -111,7 +117,7 @@ class notebar {
       if(handylist[sutun]&&turn){  hizvec.y=0; }
       
       if(hizvec.y == 0 &&!handylist[sutun]&&kontak){
-        kill();
+        detruc=true;
         scoreC = -25;
         score -= 25;
       }
@@ -144,17 +150,24 @@ class notebar {
       scoreC-=25;
       kill();
     } else if (fark>15) {
-      score +=0.5;
-      selfskor+=0.5;
-      scoreC = 0.5;
+      score +=3;
+      selfskor+=3;
+      scoreC = 3;
     } else {
-      score +=1;
-      selfskor+=1;
-      scoreC = 1;
+      score +=5;
+      selfskor+=5;
+      scoreC = 5;
       
       
     }
   }
  }
+  void destruction(){
+    hizvec.y=0;
+    if(!des1){dia+=7;}else{dia-=7;}
+    if(dia>=120){des1=true;}
+    if(75>=dia){kill();}
+  }
   
+
 }

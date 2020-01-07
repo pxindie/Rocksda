@@ -1,7 +1,8 @@
  /*
----Rocksda(v0.83)---
+---Rocksda(v0.9)---
 Made by Paxel Pager
 */
+int fps;
 
 int stage = 0;
  
@@ -13,9 +14,9 @@ import themidibus.*;
 import java.io.File;
 import java.util.Collection;
 import javax.sound.midi.*;
+import java.io.FilenameFilter;
 
-boolean testmode = true;
-
+boolean testmode = false;
 float xman;
 
 float perlimit=750;
@@ -28,20 +29,25 @@ float time;
 
 
 // Tasarım
-
+PImage enterpaper,lopera,loperb,gampaper;
 String window = "menu";
 
-color bg = color(10);
+color bg = color(0);
 int sutunWidth = 150;
 int sutunHeight = 1000;
 int circleDia = 100;
 int passin = 250;
 int passout;
 
+// FONT
+PFont fondy,fontTime;
+
+
+
 //   Müzik Hakkında
 boolean sont;
 float SongStartTime = 4200;
-music msc;
+
 
 // Kontrol Erkanı
 int numKey = 4; 
@@ -54,30 +60,37 @@ boolean[] handylist = new boolean[totalKey];
 float[] actualimit = new float[numKey];
 boolean[] emptyslot = new boolean[numKey];
 
+
 //  Serial Elemanları
 Serial port;
 
-
-color[] teamRenk = new color [11];
-{
-  teamRenk[0] = color(214, 4, 4);
-  teamRenk[1] = color(30, 30, 200);
-  teamRenk[2] = color(76, 222, 29);
-  teamRenk[3] = color(140, 15, 191);
-  teamRenk[4] = color(200, 210, 6);
-  teamRenk[5] = color(122, 0, 211);
-  teamRenk[6] = color(20, 200, 222);
-  teamRenk[7] = color(222, 140, 16);
-  teamRenk[8] = color(20, 200, 222);
-  teamRenk[9] = color(20, 200, 222);
-  teamRenk[10] = color(20, 200, 222);
+color reng(int v,int dark,int soft){
+  color[] teamRenk = new color [11];
+  {
+    teamRenk[0] = color(214+dark, 4+dark, 4+dark,soft);
+    teamRenk[1] = color(30+dark, 30+dark, 200+dark,soft);
+    teamRenk[2] = color(76, 222+dark, 29+dark,soft);
+    teamRenk[3] = color(140+dark, 15+dark, 191+dark,soft);
+    teamRenk[4] = color(200+dark, 210+dark, 6+dark,soft);
+    teamRenk[5] = color(122+dark, 0+dark, 211+dark,soft);
+    teamRenk[6] = color(20+dark, 200+dark, 222+dark,soft);
+    teamRenk[7] = color(222+dark, 140+dark, 16+dark,soft);
+    teamRenk[8] = color(20+dark, 200+dark, 222+dark,soft);
+    teamRenk[9] = color(20+dark, 200+dark, 222+dark,soft);
+    teamRenk[10] = color(20+dark, 200+dark, 222+dark,soft);
+  }
+  
+  return teamRenk[v];
 }
+
 ///// objeler
 timer clock;
 SoundFile[] sf;
 XML[] xf;
 screen menu,ingame,select,esc;
 File f;
+hiscore hs;
+music msc;
 //////
 
 float horPos(int x, int weit) { //yatay alanı hesaplıyor
@@ -89,36 +102,53 @@ float horPos(int x, int weit) { //yatay alanı hesaplıyor
 
 float fark;
 
-
+File[] exc;
 File[] Songs;
 File[] xSongs;
+
+
 
 
 
 /***************************************************************************************************************************************************/
 
 void setup() {
-  port = new Serial(this,Serial.list()[0], 9600);
-  port.bufferUntil('n');
-  printArray(Serial.list());
-  println("System Online");
-  f = new File(dataPath(""));
-  Songs = f.listFiles();
-  sf = new SoundFile[Songs.length];
+  noCursor();
+  //println(PFont.list());
+  //port = new Serial(this,Serial.list()[0], 9600);
+  //port.bufferUntil('n');
+  println("-----------------System Online-----------------");
   
+  fontTime = createFont("Courier New",100);
+  fondy = createFont("Verdana Bold Italic",48);
+
   f = new File(sketchPath("\\chords"));
   xSongs = f.listFiles();
-  println(xSongs);
-  println("fff");
+  //println(xSongs);
+
   xf = new XML[xSongs.length];
+  
+  
+  f = new File(dataPath(""));
+  exc = f.listFiles();
+  Songs = new File[xSongs.length];
+  
+  int takkuyyit=0; // a random varible
+  for(int i=0;i<exc.length;i++){
+    if(exc[i].getName().contains(".mp3")){
+      Songs[takkuyyit] = exc[i];
+      takkuyyit++;
+    }
+  }
+  sf = new SoundFile[Songs.length];
+  
   
   msc = new music();
   
   accesskey[0] = true;
-  //noCursor();
   frameRate(60);
   fullScreen();
-  colorMode(HSB);
+  //colorMode(HSB);
   passout = height - 100;
   
   
@@ -129,6 +159,10 @@ void setup() {
   
   xman = width/2;
   soundload();
+
+  hs = new hiscore();
+  hs.startup();
+
 }
 
 
@@ -194,23 +228,6 @@ void check() {
           accesskey[i] = false;
           handylist[i] = false;}
   }
-  
-// Öte Nazi
-  for (notebar note : msc.notes) {//bir notayı alıyor
-    int j = note.sutun; // notanın sutununu öğreniyor
-    
-    if (note.turn) {   // nota sahnede mi
-
-      //if (note.location.y>passout) {score-=15;scoreC=-15;note.kill();}// kaçanı vuruyoz
-
-        //if (handylist[j]) {
-        //  skorhesap(note.location.y);
-        //  accesskey[j] = false;
-        //  handylist[j] = false;
-        //  note.kill();
-        //}
-      }
-    }
  }
 
 public void gezgin(int max){ //menü de gezmek için tuşları ayarlıyor
@@ -218,16 +235,17 @@ public void gezgin(int max){ //menü de gezmek için tuşları ayarlıyor
     if(!keylist[i]){ accesskey[i] = true;}
     if(accesskey[i]){     handylist[i]=keylist[i];    }
   }
-  if(handylist[0]&& stage!=0){
+  if(handylist[0]){
     accesskey[0] = false;
     handylist[0] = false;
-    stage--;
+    if(stage!=0){stage--;}else{stage=max;}
   }
-  if(handylist[1]&& stage!=max){
+  if(handylist[1]){
     accesskey[1] = false;
     handylist[1] = false;
-    stage++;
+    if(stage!=max){stage++;}else{stage=0;}
   }
+  
   if(handylist[2]){
     accesskey[2] = false;
   }
@@ -235,7 +253,6 @@ public void gezgin(int max){ //menü de gezmek için tuşları ayarlıyor
 
 void serialEvent(Serial p){
   String data = p.readStringUntil('n');
-  println(data);
   for (int i = 0; i<totalKey; i++) {
     print(" waiting : "+i);
     if(matchAll(data,str(i))!=null) {keylist[i] = true;}
@@ -252,8 +269,10 @@ void keyPressed() {
   
   if(key==27){
    key = 0;
+   if(window=="menu"){exit();}else{
    window="menu";
    sf[0].pause();
+   }
   }
   if(key=='p'){
   noLoop();
