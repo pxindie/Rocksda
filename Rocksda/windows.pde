@@ -9,16 +9,28 @@ class screen{
   PImage menu,menutag,songcase,concert;
   PImage selectbg;
   PImage dark;
-  
+  PFont fontScore =  createFont("Bookman Old Style Kalın İtalik", 50);
   float scotiDia =300;
    // animasyonla ilgili
   float alpha =0;
+    int apassed=1 ;
   boolean bigger = true;
   int timies;
   boolean begin = false;
-  
+   //alfalar için
   float katirs=250; //saatin bulunduğu çerçevenin kat sayısı
   
+  // Skor falan
+  
+  int rekor =  0;
+  int fark =  0;
+  String geyepod ="";
+  int gentle =0;
+  int entercet=0;
+  char[] input = new char[10];
+  
+  int sgk; //song numbe key 
+  int[] sts = new int[10];
   int mbutn = 1; // Menü deki düğme sayısı
   button mbut;
   button[] sbut = new button[Songs.length];
@@ -70,6 +82,9 @@ class screen{
       case "ingame":
         ingame();
         break;
+      case "skor":
+        skor();
+        break;
      }
   }
 
@@ -79,7 +94,22 @@ class screen{
 
 
   void menu(){
+    skor.rekor=0;
+    skor.fark=0;
+    skor.gentle=0;
+    skor.entercet=0;
+    for(int i=0;i<input.length;i++){
+      skor.input[i]=0;
+    }
+    for(int i=0;i<sts.length;i++){
+      skor.sts[i]=0;
+    }
+    
+    
     sont= true;
+    
+    
+    
     imageMode(CENTER);
     tint(255,255);
     image(menu,width/2,height/2);
@@ -145,6 +175,7 @@ class screen{
 
     clock.showtime();
     scoretable();
+    if(msc.end){gotoskor();}
     //*************************************************************
     
     if(testmode){
@@ -177,6 +208,8 @@ class screen{
  
 
   void select(){
+    score=0;
+
     selectbg.resize(0,1300);
     imageMode(CENTER);
     tint(255,255);
@@ -187,30 +220,97 @@ class screen{
     
     gezgin(Songs.length-1);
     
-
-    //text(stage,800,100);
-        fps++;
-    text(fps,width-100,100);
     for(int i = 0;i<Songs.length;i++){
 
         String neym = Songs[i].getName().replace(".mp3","");
 
         
         if(sbut[i].imgbuton(neym,stage==i,handylist[2],i)){
+          skor.sgk = i;
           handylist[2] = false;
-          
-        msc.adjust(i);    ;
+          msc.end=false;
+          msc.adjust(i);
           window = "ingame";
         }
-
     }
   }
   
-  void highscores(){
+  void skor(){
+    switch(gentle){
+      case 0:
+      PFont fb = createFont("Agency FB",20);
+      PFont fbk = createFont("Agency FB kalın",20);
+      background(0);
+      
+      
+      textFont(fbk);
+      textSize(150);
+      getin(0,"Müzik Bitti",width/2,230);
+      higuys("update");
+      textFont(fb);
+      textSize(60);
+      if(sts[0]==0){delay(2000);}
+      if(sts[0]==255){
+        if(sts[1]==0){delay(2000);}
+        getin(1,"Skor: "+int(score),width/2,350);
+        if(sts[2]==0&&sts[1]==255){delay(1000);}
+        if(sts[1]==255){
+        if(rekor==0){
+          getin(2,"Adını yazdırabilmek için\n"+fark+"\ndaha puana ihtiyacın var",width/2,600);
+          if(sts[2]==255 && keyPressed){
+            handylist[totalKey-1]=false;
+            accesskey[totalKey-1]=false;
+            gentle=2;
+          }
+        }else{
+          if(rekor==1){
+          getin(2,"Kaptın birinciliği Şampiyon",width/2,600);
+          }else if(rekor<4){
+          getin(2,"Helal lan ilk üçe girdin",width/2,600);
+          }else{
+          getin(2,"Tebrikler "+rekor+". sırayı kaptın",width/2,600);
+          }
+        if(sts[2]==255 && keyPressed){
+          handylist[totalKey-1]=false;
+          accesskey[totalKey-1]=false;
+          gentle=1;
+        }
+        }
+      }
+      }
+
+        break;
+
+   case 1:
+      background(0);
+      geyepod="";
+      if(sts[3]==255){
+        for(int i=0;i<input.length;i++){
+          nameter();
+          geyepod+=input[i];
+        }
+      }
+      textSize(65);
+      getin(3,"Top 10 arasında nasıl anılmak istiyorsun:\n"+"\""+geyepod+"\"",width/2,height/2);
+      
+      if(sts[3]==255){textSize(40);text("Devam etmek için 'ENTER'e basınız.",width/2,900);}
+      if(sts[3]==255&&key==ENTER){gentle=2;hs.addscore(Songs[sgk].getName().replace(".mp3",""),geyepod,score);}
+  break;
+  
+  case 2:
+    background(0);
+    getin(4,"",0,0);
+    higuys("sort");
+    if(keyPressed&&sts[4]==255){window="menu";}
+  break;
+    }
+}
+    //
     
   
   
-  }
+  
+  
   void blinkeffect(){
     if(bigger){
       alpha+=3;
@@ -231,6 +331,7 @@ class screen{
   }
   
   void scoretable(){
+
     scotiDia+= scoreC*2;
     scoreC=0;
     if(scotiDia>300){scotiDia-=10;}
@@ -239,18 +340,95 @@ class screen{
     fill(0,0,0,150);
     
     circle(width-350,600,scotiDia);
-    PFont fontScore; // Score burda gösteriliyor
-    fontScore = createFont("Bookman Old Style Kalın İtalik", 50);
+
     
     fill(250);
     textFont(fontScore);
     textAlign(CENTER);
-    text(nf(score,0,1), width -350, 600);
+    text(score, width -350, 600);
     textSize(40);
-    //String m;
-    //if(scoreC<0){fill(#DE1013);m="";}else{fill(#08C909);m="+";}
-    //text(m+scoreC, width -500, 650);
+
+  }
   
+  
+  void higuys(String mode){
+    boolean passportation = false;
+    PFont sk = createFont("Agency FB",50);
+    textFont(sk);
+    for(int f=0;f<10;f++){
+      JSONObject theguy;
+      String name = "";
+      int skore =0;
+      String aktarmalibelediyeotobusu = "";
+     try{
+       theguy = hs.data.getJSONObject(sgk).getJSONArray("siralama").getJSONObject(f);
+       name = theguy.getString("name");
+       skore = int(theguy.getFloat("score"));
+       aktarmalibelediyeotobusu = str(skore);
+     }catch(Exception ex){
+       passportation = true;
+     }
+      if(mode=="sort"){
+        if(f+1==rekor){fill(250,45,45);}else{fill(255);}
+        text((f+1)+". "+name+"......("+aktarmalibelediyeotobusu+")",width/2,200+(75*f));
+        
+      }
+      if(mode=="update"){
+        if(score>skore){
+          rekor=f+1;
+          break;
+        }
+        if(f==9){
+          fark = int(skore - score);
+          break;
+        }
+      }
+    }
+  }
+  
+  
+  
+  void gotoskor(){
+    alpha+=5;
+    if(alpha>255){window="skor";}
+    tint(255,alpha);
+    dark.resize(0,2000);
+    image(dark,width/2,height/2);
+  }
+  
+  void nameter(){
+    if(keyPressed){keylist[totalKey-1]=true;}else{keylist[totalKey-1]=false;}
+    
+    if(handylist[totalKey-1]){
+        if(key == BACKSPACE){
+            accesskey[totalKey-1]=false;
+            handylist[totalKey-1]=false;
+            input[entercet] = char(0);
+            if(entercet!=0){entercet--;}
+            
+          }
+        for(int i=0;i<25;i++){
+          
+
+          
+          if(handylist[totalKey-1]&&key == i+97){
+            accesskey[totalKey-1]=false;
+            handylist[totalKey-1]=false;
+            input[entercet] = char(97+i);
+            if(entercet<9){entercet++;}
+            
+           
+          }
+          
+        }
+      
+    }
+  }
+  
+  void getin(int ci,String text,float x,float y){
+    if(sts[ci]<255){sts[ci]+=5;}
+    fill(sts[ci]);
+    text(text,x,y);
   }
 
 }

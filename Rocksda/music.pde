@@ -15,7 +15,7 @@ class music {
   
   float[] sures = new float[numKey];
 
-
+  boolean end;
   FloatList raysira = new FloatList();
   IntList atamalist = new IntList();
 
@@ -34,11 +34,13 @@ class music {
 
 
   void run() {
-    try{
-      for (notebar note : notes) {
-        note.motor();
-      }
-    }catch(Exception ex){}
+    if(!end){
+      try{
+        for (notebar note : notes) {
+          note.motor();
+        }
+      }catch(Exception ex){}
+  }
   }
 
 

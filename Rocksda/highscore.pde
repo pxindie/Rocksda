@@ -19,7 +19,7 @@ class hiscore{
     }else{saveJSONArray(data, "data/hiscores.json");}
   }
 
-  void addscore(String musicn, String guyname, Float skor){
+  void addscore(String musicn, String guyname, int skor){
     startup();
     int islemno=1001;
      //data verisi içinde ufak bilgi kırıntıları varsa bunlar aradığımız şey mi bakıyoruz      Şarkı arıyosz
@@ -62,7 +62,7 @@ class hiscore{
     
     for(int i=0;i<forsort.size();i++){
       for(int u=0;u<list.size();u++){
-        if(forsort.get(i)==list.getJSONObject(u).getFloat("score")){
+        if(forsort.get(i)==list.getJSONObject(u).getFloat("score")){ // burda bug oluşuyor ama üşendim :( ☻☻
         retlist.setJSONObject(i,list.getJSONObject(u));
         }
       }

@@ -1,5 +1,5 @@
  /*
----Rocksda(v0.9)---
+---Rocksda(v0.93)---
 Made by Paxel Pager
 */
 int fps;
@@ -21,7 +21,7 @@ float xman;
 
 float perlimit=750;
 // genel elemanları
-float score = 0;
+int score = 0;
 float scoreC;
 int hiz = 6;
 int turn=0;
@@ -87,7 +87,7 @@ color reng(int v,int dark,int soft){
 timer clock;
 SoundFile[] sf;
 XML[] xf;
-screen menu,ingame,select,esc;
+screen menu,ingame,select,esc,skor;
 File f;
 hiscore hs;
 music msc;
@@ -155,14 +155,15 @@ void setup() {
   menu = new screen("menu");
   ingame = new screen("ingame");
   select = new screen("select");
-  
+  skor = new screen("skor");
   
   xman = width/2;
   soundload();
 
   hs = new hiscore();
   hs.startup();
-
+  
+  hs.addscore("Back In Black","dagtastoprak",200);
 }
 
 
@@ -190,9 +191,12 @@ void draw() {
       msc.run();
       check();
       break;
- 
+    case "skor":
+      skor.display();
+      if(!keylist[totalKey-1]){accesskey[totalKey-1]=true;}
+      if(accesskey[totalKey-1]){handylist[totalKey-1]=keylist[totalKey-1];}
   }
-
+      
 }
 
 /***************************************************************************************************************************************************/

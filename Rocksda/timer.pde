@@ -23,11 +23,11 @@ class timer {
 
   
   void work() {
-    if(nowtime != songtime){
+    if(3*1000>nowtime){
       if(!workin){bctime=millis();workin = true;}
         systime= millis();
         nowtime = systime - bctime;
-      }
+      }else{msc.end = true;}
     }
   
   float calc(int x){return float(nf(x*0.01,0,2).replace(",","."));}
